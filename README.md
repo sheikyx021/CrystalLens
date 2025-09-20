@@ -26,17 +26,6 @@ Add your screenshots to `docs/` and reference them here.
 - Employee detail + Checks
 - Analysis report + Specific Assessments
 
-## 🧭 Architecture
-```mermaid
-flowchart LR
-  A[UI (Flask templates)] --> B[Flask App]
-  B --> C[Apify Service]
-  B --> D[LLM Provider]
-  D --> D1[Ollama]
-  D --> D2[Gemini]
-  B --> E[(DB)]
-```
-
 ## 🚀 Quickstart (Dev)
 1) Create a venv and install deps
 ```bash
@@ -81,10 +70,6 @@ python run.py
 - Sensitive endpoints protected via RBAC
 - Audit logs for critical actions
 
-## 🗺️ Roadmap
-- Detail level presets (speed vs. depth)
-- Chunk‑and‑synthesize long timelines
-- More providers (OpenAI, Claude) via adapter
 
 ## 🤝 Contributing
 PRs welcome. Please open issues first for major changes. Keep secrets out of commits.
