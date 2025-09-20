@@ -20,11 +20,6 @@ Evidence‑driven social media analysis for sensitive roles — on‑prem with O
 - **Reports**: Evidence‑backed narratives with citations, PDF export, CSV exports and dashboards.
 - **RBAC & Auditing**: Roles for admin/manager/reviewer; audit log for sensitive actions.
 
-## 📸 Screenshots (placeholders)
-Add your screenshots to `docs/` and reference them here.
-- Dashboard
-- Employee detail + Checks
-- Analysis report + Specific Assessments
 
 ## 🚀 Quickstart (Dev)
 1) Create a venv and install deps
