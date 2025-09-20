@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+{% block title %}Employees{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Employees</h3>
+  {% if current_user.can_manage_employees() %}
+    <a class="btn btn-primary" href="{{ url_for('employees.create_employee') }}">Add Employee</a>
+  {% endif %}
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-4"><input class="form-control" type="text" name="search" value="{{ search }}" placeholder="Search"></div>
+  <div class="col-md-3">
+    <select class="form-select" name="status">
+      <option value="">All Statuses</option>
+      {% for s in ['active','inactive','under_review'] %}
+        <option value="{{ s }}" {% if status_filter==s %}selected{% endif %}>{{ s|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" name="department">
+      <option value="">All Departments</option>
+      {% for d in departments %}
+        <option value="{{ d }}" {% if department_filter==d %}selected{% endif %}>{{ d }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2"><button class="btn btn-outline-secondary w-100" type="submit">Filter</button></div>
+</form>
+<table class="table table-hover">
+  <thead><tr><th>ID</th><th>Name</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for e in employees.items %}
+      <tr>
+        <td>{{ e.employee_id }}</td>
+        <td><a href="{{ url_for('employees.view_employee', id=e.id) }}">{{ e.full_name }}</a></td>
+        <td>{{ e.department or '—' }}</td>
+        <td>{{ e.status|capitalize }}</td>
+        <td>
+          <div class="btn-group" role="group" aria-label="Employee actions">
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('employees.view_employee', id=e.id) }}">View</a>
+            {% if current_user.can_manage_employees() %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('employees.edit_employee', id=e.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('employees.delete_employee', id=e.id) }}" onsubmit="return confirm('Delete employee {{ e.full_name }}? This cannot be undone.');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<nav>
+  <ul class="pagination">
+    {% if employees.has_prev %}
+      <li class="page-item"><a class="page-link" href="?page={{ employees.prev_num }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ employees.page }} of {{ employees.pages }}</span></li>
+    {% if employees.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ employees.next_num }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}

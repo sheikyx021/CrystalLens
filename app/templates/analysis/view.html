@@ -1,0 +1,165 @@
+{% extends 'layout.html' %}
+{% block title %}Analysis Report{% endblock %}
+{% block content %}
+<div id="analysis-content">
+<h3>Analysis for {{ analysis.employee.full_name }}</h3>
+<p><strong>Date:</strong> {{ analysis.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+<p><strong>Risk:</strong> {{ analysis.risk_score or 'N/A' }} ({{ analysis.get_risk_level() }})</p>
+<p><strong>Confidence:</strong> {{ analysis.confidence_score or 'N/A' }}</p>
+<p><strong>Posts analyzed:</strong> {{ analysis.posts_analyzed }}</p>
+
+{% if analysis.character_assessment %}
+  <h5>Character Assessment</h5>
+  <p>{{ analysis.character_assessment }}</p>
+{% endif %}
+{% if analysis.behavioral_insights %}
+  <h5>Behavioral Insights</h5>
+  {% if 'Assessments:' in analysis.behavioral_insights %}
+    {% set bi_parts = analysis.behavioral_insights.split('Assessments:') %}
+    <p>{{ bi_parts[0] }}</p>
+  {% else %}
+    <p>{{ analysis.behavioral_insights }}</p>
+  {% endif %}
+{% endif %}
+{% if analysis.red_flags %}
+  <h5>Red Flags</h5>
+  <ul>{% for r in analysis.red_flags %}<li>{{ r }}</li>{% endfor %}</ul>
+{% endif %}
+{% if analysis.positive_indicators %}
+  <h5>Positive Indicators</h5>
+  <ul>{% for p in analysis.positive_indicators %}<li>{{ p }}</li>{% endfor %}</ul>
+{% endif %}
+
+{# Extract a dedicated Specific Assessments section if present inside behavioral_insights #}
+{% if analysis.behavioral_insights and 'Assessments:' in analysis.behavioral_insights %}
+  {% set parts = analysis.behavioral_insights.split('Assessments:') %}
+  {% if parts|length > 1 %}
+    {% set assess_block = parts[1] %}
+    {% set lines = assess_block.split('\n') %}
+    {# Build a key->value map handling both `Key: Value` and two-line key/value patterns #}
+    {% set acc = namespace(items={}, last_key=None) %}
+    {% for line in lines %}
+      {% set trimmed = line.strip() %}
+      {% if not trimmed %}
+        {% set acc.last_key = None %}
+      {% else %}
+        {% if ':' in trimmed %}
+          {% set kv = trimmed.split(':', 1) %}
+          {% set key = kv[0].strip() %}
+          {% set val = kv[1].strip() %}
+          {% set _ = acc.items.update({key: val}) %}
+          {% set acc.last_key = None %}
+        {% else %}
+          {% if acc.last_key %}
+            {% set _ = acc.items.update({acc.last_key: trimmed}) %}
+            {% set acc.last_key = None %}
+          {% else %}
+            {% set acc.last_key = trimmed %}
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+    <h5>Specific Assessments</h5>
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <tbody>
+          {% set order = [
+            'Political orientation',
+            'Religious orientation',
+            'Violence tendency',
+            'Political/Religious affiliation',
+            'Suitability for sensitive positions',
+            'Bias against class/gender/color',
+            'Personal problems shared publicly'
+          ] %}
+          {% set rendered = 0 %}
+          {% for key in order %}
+            {% if key in acc.items %}
+              {% set v = acc.items[key] %}
+              {% set lower = v.lower() %}
+              {% set badge = 'secondary' %}
+              {% if lower.startswith('yes') %}{% set badge = 'danger' %}{% endif %}
+              {% if lower.startswith('no') %}{% set badge = 'success' %}{% endif %}
+              {% if 'unknown' in lower %}{% set badge = 'secondary' %}{% endif %}
+              {% if 'low' in lower %}{% set badge = 'success' %}{% endif %}
+              {% if 'medium' in lower %}{% set badge = 'warning' %}{% endif %}
+              {% if 'high' in lower %}{% set badge = 'danger' %}{% endif %}
+              <tr>
+                <th style="width: 40%;">{{ key }}</th>
+                <td><span class="badge bg-{{ badge }}">{{ v }}</span></td>
+              </tr>
+              {% set rendered = rendered + 1 %}
+            {% endif %}
+          {% endfor %}
+          {# Render any remaining (unexpected) keys #}
+          {% for k, v in acc.items.items() %}
+            {% if k not in order %}
+              {% set lower = v.lower() %}
+              {% set badge = 'secondary' %}
+              {% if lower.startswith('yes') %}{% set badge = 'danger' %}{% endif %}
+              {% if lower.startswith('no') %}{% set badge = 'success' %}{% endif %}
+              {% if 'unknown' in lower %}{% set badge = 'secondary' %}{% endif %}
+              {% if 'low' in lower %}{% set badge = 'success' %}{% endif %}
+              {% if 'medium' in lower %}{% set badge = 'warning' %}{% endif %}
+              {% if 'high' in lower %}{% set badge = 'danger' %}{% endif %}
+              <tr>
+                <th style="width: 40%;">{{ k }}</th>
+                <td><span class="badge bg-{{ badge }}">{{ v }}</span></td>
+              </tr>
+              {% set rendered = rendered + 1 %}
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if rendered == 0 %}
+      <p class="text-muted">No specific assessments detected.</p>
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+</div>
+
+<a class="btn btn-secondary" href="{{ url_for('analysis.export_pdf', id=analysis.id) }}">Export PDF</a>
+
+{% if post_refs %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      const refs = JSON.parse('{{ post_refs|tojson|safe }}');
+      const map = {};
+      (refs || []).forEach(function(r){ if (r && r.index && r.url) { map[r.index] = r.url; } });
+      var container = document.getElementById('analysis-content');
+      if (!container) return;
+      // Matches 'Post N' or 'Posts N, M, K' and optionally a trailing ' - date'
+      var rxList = /(Post[s]?\s+)((\d+)(\s*,\s*\d+)*)/gi;
+      var rxSingle = /(Post\s+)(\d+)(?:\s*-\s*[^)\]]+)?/gi;
+      function linkify(el){
+        var html = el.innerHTML;
+        if (!html) return;
+        // First, handle lists: 'Posts 12, 13, 25'
+        html = html.replace(rxList, function(m, label, nums){
+          var parts = nums.split(/\s*,\s*/);
+          var linked = parts.map(function(s){
+            var n = parseInt(s, 10);
+            var url = map[n];
+            return url ? '<a href="' + url + '" target="_blank" rel="noopener">' + s + '</a>' : s;
+          }).join(', ');
+          return label + linked;
+        });
+        // Then, handle single 'Post N' occurrences
+        html = html.replace(rxSingle, function(m, label, num){
+          var n = parseInt(num, 10);
+          var url = map[n];
+          return url ? label + '<a href="' + url + '" target="_blank" rel="noopener">' + num + '</a>' : m;
+        });
+        el.innerHTML = html;
+      }
+      var targets = container.querySelectorAll('p, li, td');
+      Array.prototype.forEach.call(targets, linkify);
+    } catch (e) { /* ignore */ }
+  });
+  </script>
+{% endif %}
+{% endblock %}

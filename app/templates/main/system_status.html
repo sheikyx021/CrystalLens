@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+{% block title %}System Status{% endblock %}
+{% block content %}
+<h3>System Status</h3>
+<h5 class="mt-3">Ollama</h5>
+<p>Status: <span class="badge bg-{{ 'success' if ollama_status.status=='success' else 'warning' if ollama_status.status=='warning' else 'danger' }}">{{ ollama_status.status }}</span></p>
+<p>{{ ollama_status.message }}</p>
+
+<h5 class="mt-3">Database</h5>
+<p>Status: <span class="badge bg-{{ 'success' if db_status.status=='success' else 'danger' }}">{{ db_status.status }}</span></p>
+<p>{{ db_status.message }}</p>
+
+<h5 class="mt-3">System Stats</h5>
+<ul>
+  <li>Total users: {{ system_stats.total_users }}</li>
+  <li>Active users: {{ system_stats.active_users }}</li>
+  <li>Total audit logs: {{ system_stats.total_audit_logs }}</li>
+  <li>Recent logins (7d): {{ system_stats.recent_logins }}</li>
+</ul>
+{% endblock %}

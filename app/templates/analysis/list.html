@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% block title %}Analyses{% endblock %}
+{% block content %}
+<h3>Analyses</h3>
+<table class="table table-striped">
+  <thead><tr><th>Date</th><th>Employee</th><th>Risk</th><th>Confidence</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for a in analyses.items %}
+      <tr>
+        <td>{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ a.employee.full_name }}</td>
+        <td>{{ a.risk_score or 'N/A' }} ({{ a.get_risk_level() }})</td>
+        <td>{{ a.confidence_score or 'N/A' }}</td>
+        <td>
+          <div class="btn-group" role="group" aria-label="Actions">
+            <a class="btn btn-sm btn-outline-primary" title="View report" href="{{ url_for('analysis.view_analysis', id=a.id) }}">View</a>
+            <a class="btn btn-sm btn-outline-secondary" title="Export PDF" href="{{ url_for('analysis.export_pdf', id=a.id) }}">PDF</a>
+            {% if current_user.is_authenticated and current_user.role in ['platform_manager','system_admin'] %}
+            <form method="post" action="{{ url_for('analysis.delete_analysis', id=a.id) }}" onsubmit="return confirm('Delete this analysis permanently?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-outline-danger" title="Delete" type="submit">Delete</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<nav>
+  <ul class="pagination">
+    {% if analyses.has_prev %}
+      <li class="page-item"><a class="page-link" href="?page={{ analyses.prev_num }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ analyses.page }} of {{ analyses.pages }}</span></li>
+    {% if analyses.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ analyses.next_num }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block title %}Job #{{ job.id }}{% endblock %}
+{% block content %}
+<h3>Job #{{ job.id }}</h3>
+<p><strong>Status:</strong> {{ job.status }}</p>
+<p><strong>Account:</strong> {{ job.social_account.platform|capitalize }} / {{ job.social_account.username }}</p>
+<p><strong>Posts scraped:</strong> {{ job.posts_scraped }}</p>
+{% if job.status in ['running','pending'] %}
+<form method="post" action="{{ url_for('scraping.refresh_job_status', job_id=job.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-outline-secondary">Refresh</button>
+</form>
+{% endif %}
+
+<h5 class="mt-4">Posts</h5>
+<ul>
+  {% for p in posts %}
+    <li>[{{ p.platform }}] {{ p.created_at }} - {{ p.text[:140] }}{% if p.url %} <a href="{{ p.url }}" target="_blank">link</a>{% endif %}</li>
+  {% else %}
+    <li>No posts yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

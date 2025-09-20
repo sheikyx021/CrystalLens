@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block title %}Bulk Scrape{% endblock %}
+{% block content %}
+<h3>Bulk Scrape</h3>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-2"><button class="btn btn-primary">Start Selected</button></div>
+  <table class="table table-hover">
+    <thead><tr><th>Select</th><th>Employee</th><th>Platform</th><th>Username</th><th>Last Scraped</th></tr></thead>
+    <tbody>
+      {% for a in social_accounts %}
+      <tr>
+        <td><input type="checkbox" name="account_ids" value="{{ a.id }}"></td>
+        <td>{{ a.employee.full_name }}</td>
+        <td>{{ a.platform|capitalize }}</td>
+        <td>{{ a.username }}</td>
+        <td>{{ a.last_scraped or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
+{% endblock %}

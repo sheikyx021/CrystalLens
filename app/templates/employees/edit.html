@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block title %}Edit Employee{% endblock %}
+{% block content %}
+<h3>Edit Employee</h3>
+<form method="post" class="col-md-8">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row g-3">
+    <div class="col-md-4"><label class="form-label">First Name</label><input class="form-control" name="first_name" value="{{ employee.first_name }}" required></div>
+    <div class="col-md-4"><label class="form-label">Last Name</label><input class="form-control" name="last_name" value="{{ employee.last_name }}" required></div>
+    <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" name="email" type="email" value="{{ employee.email or '' }}"></div>
+    <div class="col-md-3"><label class="form-label">Department</label><input class="form-control" name="department" value="{{ employee.department or '' }}"></div>
+    <div class="col-md-3"><label class="form-label">Position</label><input class="form-control" name="position" value="{{ employee.position or '' }}"></div>
+    <div class="col-md-3"><label class="form-label">Hire Date</label><input class="form-control" name="hire_date" type="date" value="{{ employee.hire_date }}"></div>
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        {% for s in ['active','inactive','under_review'] %}
+          <option value="{{ s }}" {% if employee.status==s %}selected{% endif %}>{{ s|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="3">{{ employee.notes or '' }}</textarea></div>
+  </div>
+  <button class="btn btn-primary mt-3" type="submit">Save</button>
+</form>
+{% endblock %}

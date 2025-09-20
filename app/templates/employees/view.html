@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+{% block title %}Employee {{ employee.full_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>{{ employee.full_name }} <small class="text-muted">({{ employee.employee_id }})</small></h3>
+  <div>
+    {% if current_user.can_manage_employees() %}
+      <a class="btn btn-outline-primary" href="{{ url_for('employees.edit_employee', id=employee.id) }}">Edit</a>
+    {% endif %}
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5>Details</h5>
+      <p><strong>Department:</strong> {{ employee.department or 'N/A' }}</p>
+      <p><strong>Position:</strong> {{ employee.position or 'N/A' }}</p>
+      <p><strong>Status:</strong> {{ employee.status|capitalize }}</p>
+      <p><strong>Hire Date:</strong> {{ employee.hire_date or 'N/A' }}</p>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5>Social Accounts</h5>
+      <ul class="mb-3">
+        {% for a in social_accounts %}
+          <li>{{ a.platform|capitalize }}: <a href="{{ a.profile_url }}" target="_blank">{{ a.username }}</a>
+            <form class="d-inline" method="post" action="{{ url_for('scraping.start_scraping', social_account_id=a.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-outline-success">Start Scraping</button>
+            </form>
+          </li>
+        {% else %}
+          <li>No accounts.</li>
+        {% endfor %}
+      </ul>
+      {% if current_user.can_manage_employees() %}
+        <a class="btn btn-sm btn-primary" href="{{ url_for('employees.add_social_account', id=employee.id) }}">Add Social Account</a>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+
+{% if latest_analysis %}
+  <div class="card mt-4"><div class="card-body">
+    <h5>Latest Analysis</h5>
+    <p><strong>Risk:</strong> {{ latest_analysis.risk_score or 'N/A' }} ({{ latest_analysis.get_risk_level() }})</p>
+    <a href="{{ url_for('analysis.view_analysis', id=latest_analysis.id) }}" class="btn btn-outline-secondary">View Report</a>
+  </div></div>
+{% else %}
+  <div class="alert alert-info mt-4">No analysis yet. Run scraping and then start analysis.</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('analysis.start_analysis', employee_id=employee.id) }}" class="mt-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card mb-2"><div class="card-body">
+    <h6 class="mb-2">Select checks to include</h6>
+    <div class="row g-2">
+      <div class="col-md-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="chk_risk" name="CHECKS" value="risk" checked>
+          <label class="form-check-label" for="chk_risk">Risk assessment</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="chk_character" name="CHECKS" value="character" checked>
+          <label class="form-check-label" for="chk_character">Character assessment</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="chk_behavior" name="CHECKS" value="behavior" checked>
+          <label class="form-check-label" for="chk_behavior">Behavioral insights</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="chk_redflags" name="CHECKS" value="redflags" checked>
+          <label class="form-check-label" for="chk_redflags">Red flags</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="chk_positive" name="CHECKS" value="positive" checked>
+          <label class="form-check-label" for="chk_positive">Positive indicators</label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="chk_assessments" name="CHECKS" value="assessments" checked>
+          <label class="form-check-label" for="chk_assessments">Specific assessments</label>
+        </div>
+      </div>
+    </div>
+    <div class="form-text mt-1">You can run a single check, selected checks, or all. Mode is configured in Settings (single request vs staged).</div>
+  </div></div>
+  <button class="btn btn-success">Start AI Analysis</button>
+  </form>
+{% endblock %}

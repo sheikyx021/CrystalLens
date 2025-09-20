@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h3 class="mb-4">Dashboard</h3>
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center">
+        <div class="me-3 text-primary"><i class="bi bi-people-fill fs-2"></i></div>
+        <div>
+          <div class="text-muted">Employees</div>
+          <div class="display-6">{{ stats.total_employees }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center">
+        <div class="me-3 text-success"><i class="bi bi-person-check-fill fs-2"></i></div>
+        <div>
+          <div class="text-muted">Active</div>
+          <div class="display-6">{{ stats.active_employees }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center">
+        <div class="me-3 text-info"><i class="bi bi-hash fs-2"></i></div>
+        <div>
+          <div class="text-muted">Social Accounts</div>
+          <div class="display-6">{{ stats.total_social_accounts }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center">
+        <div class="me-3 text-warning"><i class="bi bi-graph-up fs-2"></i></div>
+        <div>
+          <div class="text-muted">Recent Analyses</div>
+          <div class="display-6">{{ stats.recent_analyses }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3"><i class="bi bi-person-plus me-2 text-primary"></i>Recent Employees</h5>
+        <ul class="mb-0">
+          {% for e in recent_employees %}
+            <li><a href="{{ url_for('employees.view_employee', id=e.id) }}">{{ e.full_name }}</a> ({{ e.department or 'N/A' }})</li>
+          {% else %}
+            <li class="text-muted">No recent employees.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3"><i class="bi bi-clipboard2-pulse me-2 text-danger"></i>Recent Analyses</h5>
+        <ul class="mb-0">
+          {% for a in recent_analyses %}
+            <li><a href="{{ url_for('analysis.view_analysis', id=a.id) }}">{{ a.employee.full_name }}</a> - Risk: {{ a.risk_score or 'N/A' }}</li>
+          {% else %}
+            <li class="text-muted">No recent analyses.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

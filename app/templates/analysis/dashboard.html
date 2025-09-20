@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% block title %}Analytics Dashboard{% endblock %}
+{% block content %}
+<h3>Analytics Dashboard</h3>
+<div class="row g-3 mt-2">
+  <div class="col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="text-muted">Total Analyses</div>
+      <div class="display-6">{{ total_analyses }}</div>
+    </div></div>
+  </div>
+</div>
+
+<h5 class="mt-4">Risk Distribution</h5>
+<table class="table table-sm">
+  <thead><tr><th>Risk Level</th><th>Count</th></tr></thead>
+  <tbody>
+  {% for row in risk_stats %}
+    <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td></tr>
+  {% else %}
+    <tr><td colspan="2">No data.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h5 class="mt-4">Average Risk by Department</h5>
+<table class="table table-sm">
+  <thead><tr><th>Department</th><th>Avg Risk</th><th>Analyses</th></tr></thead>
+  <tbody>
+  {% for row in dept_risk %}
+    <tr><td>{{ row[0] }}</td><td>{{ '%.1f'|format(row[1]) }}</td><td>{{ row[2] }}</td></tr>
+  {% else %}
+    <tr><td colspan="3">No data.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h5 class="mt-4">Recent High-Risk Analyses</h5>
+<ul>
+  {% for a in high_risk_analyses %}
+    <li>{{ a.created_at.strftime('%Y-%m-%d') }} - {{ a.employee.full_name }} ({{ a.risk_score }})</li>
+  {% else %}
+    <li>No high-risk analyses recently.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'layout.html' %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h3>Application Settings</h3>
+<p class="text-muted">Configure scraping and AI parameters. Values are stored in the database and take precedence over environment variables.</p>
+
+<form method="post" class="col-lg-8">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {% if can_edit_max_posts %}
+  <div class="card mb-3">
+    <div class="card-header">Scraping</div>
+    <div class="card-body">
+      <div class="mb-3 col-md-6">
+        <label class="form-label">Maximum posts per scrape</label>
+        <input class="form-control" type="number" name="MAX_POSTS_PER_SCRAPE" min="1" value="{{ current_settings.MAX_POSTS_PER_SCRAPE }}">
+        <div class="form-text">Applies to supported scrapers. Note: Facebook is additionally capped at 50 by policy.</div>
+      </div>
+
+  <div class="card mb-3">
+    <div class="card-header">Analysis Settings</div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Provider</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="ANALYSIS_PROVIDER" id="prov_ollama" value="ollama" {% if analysis_provider=='ollama' %}checked{% endif %}>
+          <label class="form-check-label" for="prov_ollama">Ollama (local)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="ANALYSIS_PROVIDER" id="prov_gemini" value="gemini" {% if analysis_provider=='gemini' %}checked{% endif %}>
+          <label class="form-check-label" for="prov_gemini">Gemini (gemini-2.0-flash, cloud)</label>
+        </div>
+      </div>
+
+      <div class="mb-3" id="geminiCreds" style="display: {% if analysis_provider=='gemini' %}block{% else %}none{% endif %};">
+        <label class="form-label">Gemini API Key</label>
+        <input class="form-control" type="password" name="GOOGLE_API_KEY" placeholder="{% if gemini_key_present %}******** (saved){% else %}Enter Google API key{% endif %}">
+        <div class="form-text">Key is stored securely in DB. Leave blank to keep current.</div>
+        <div class="mt-2">
+          <button formaction="{{ url_for('main.test_gemini') }}" formmethod="post" class="btn btn-sm btn-outline-secondary">Test Gemini</button>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Mode</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="ANALYSIS_MODE" id="mode_single" value="single" {% if analysis_mode=='single' %}checked{% endif %}>
+          <label class="form-check-label" for="mode_single">Single request (faster)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="ANALYSIS_MODE" id="mode_staged" value="staged" {% if analysis_mode=='staged' %}checked{% endif %}>
+          <label class="form-check-label" for="mode_staged">Staged (evidence then assessment)</label>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Extra instructions (applied to all analyses)</label>
+        <textarea class="form-control" name="PROMPT_EXTRA_INSTRUCTIONS" rows="2" placeholder="Any global guidance for the model">{{ prompt_extra }}</textarea>
+      </div>
+
+      <div class="mb-2"><strong>Per-section prompt overrides</strong> <span class="text-muted d-block">Optional extra guidance appended to each section.</span></div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Risk Assessment override</label>
+          <textarea class="form-control" name="PROMPT_RISK" rows="2">{{ prompt_overrides.PROMPT_RISK }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Character Assessment override</label>
+          <textarea class="form-control" name="PROMPT_CHARACTER" rows="2">{{ prompt_overrides.PROMPT_CHARACTER }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Behavioral Insights override</label>
+          <textarea class="form-control" name="PROMPT_BEHAVIOR" rows="2">{{ prompt_overrides.PROMPT_BEHAVIOR }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Red Flags override</label>
+          <textarea class="form-control" name="PROMPT_REDFLAGS" rows="2">{{ prompt_overrides.PROMPT_REDFLAGS }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Positive Indicators override</label>
+          <textarea class="form-control" name="PROMPT_POSITIVE" rows="2">{{ prompt_overrides.PROMPT_POSITIVE }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Assessments override</label>
+          <textarea class="form-control" name="PROMPT_ASSESSMENTS" rows="2">{{ prompt_overrides.PROMPT_ASSESSMENTS }}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if is_admin %}
+  <div class="card mb-3">
+    <div class="card-header">Ollama</div>
+    <div class="card-body">
+      <div class="mb-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="useExistingModels" checked>
+          <label class="form-check-label" for="useExistingModels">Select from existing models detected on Ollama</label>
+        </div>
+      </div>
+
+      <div id="existingModelsSection" class="mb-3" style="display: block;">
+        {% if available_models and available_models|length > 0 %}
+          <div class="row">
+            {% for m in available_models %}
+            <div class="col-md-4 mb-1">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="OLLAMA_MODEL" id="model_{{ loop.index }}" value="{{ m }}" {% if current_settings.OLLAMA_MODEL == m %}checked{% endif %}>
+                <label class="form-check-label" for="model_{{ loop.index }}">{{ m }}</label>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-warning">No models discovered from Ollama API. Ensure Ollama is running and models are pulled (e.g., <code>ollama pull llama2</code>).</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Or enter a custom model</label>
+        <input class="form-control" type="text" name="OLLAMA_MODEL_CUSTOM" value="" placeholder="Leave blank to use selection above">
+        <div class="form-text">Example: llama2, mistral, qwen2.5, etc. Must be available in your Ollama server.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">Assessment Dimensions</div>
+    <div class="card-body">
+      <p class="text-muted">Choose which assessments to include in AI analysis of social posts.</p>
+      <div class="row">
+        {% for key in assessment_dimensions %}
+        <div class="col-md-6">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="ASSESSMENT_DIMENSIONS" id="assess_{{ key }}" value="{{ key }}" {% if key in selected_dims %}checked{% endif %}>
+            <label class="form-check-label" for="assess_{{ key }}">
+              {% if key == 'political_orientation' %}Political orientation{% endif %}
+              {% if key == 'religious_orientation' %}Religious orientation{% endif %}
+              {% if key == 'violence_tendency' %}Violence tendency in responses{% endif %}
+              {% if key == 'political_or_religious_affiliation' %}Affiliation to political/religious party{% endif %}
+              {% if key == 'suitability_for_sensitive_positions' %}Suitability for sensitive positions (e.g., ministries){% endif %}
+            </label>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">Apify</div>
+    <div class="card-body">
+      <div class="mb-3 col-md-8">
+        <label class="form-label">API Token</label>
+        <input class="form-control" type="password" name="APIFY_API_TOKEN" placeholder="{% if token_present %}********{% else %}Enter token{% endif %}">
+        <div class="form-text">Token is stored securely in DB. Leave blank to keep current.</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <button class="btn btn-primary" type="submit">Save Settings</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const chk = document.getElementById('useExistingModels');
+  const section = document.getElementById('existingModelsSection');
+  const radios = document.querySelectorAll('input[name="OLLAMA_MODEL"]');
+  const custom = document.querySelector('input[name="OLLAMA_MODEL_CUSTOM"]');
+
+  function toggleModels() {
+    section.style.display = chk.checked ? 'block' : 'none';
+    if (!chk.checked) {
+      // Uncheck radios when hiding, to prefer custom value if provided
+      radios.forEach(r => r.checked = false);
+    }
+  }
+  chk.addEventListener('change', toggleModels);
+  toggleModels();
+});
+</script>
+{% endblock %}
